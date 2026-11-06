@@ -1,0 +1,26 @@
+.player-stat-link{display:flex;align-items:center;gap:5px;width:100%;font-size:10px;font-weight:800;text-align:left}
+.player-stat-link>span:last-child{margin-left:auto;color:#91a098;font-size:16px;line-height:12px}
+.player-stat-link:focus-visible{outline:2px solid #8bad5b;outline-offset:3px;border-radius:5px}
+.player-detail-hero{display:flex;align-items:center;gap:13px;margin:-3px 0 18px}
+.detail-jersey{width:54px;height:54px;border-radius:15px 15px 19px 19px;background:#173c30;color:#d6f257;display:grid;place-items:center;font:800 19px 'DM Mono'}
+.player-detail-hero h3{font-size:21px;letter-spacing:-.06em;margin:3px 0 6px}
+.player-detail-hero .status{display:inline-block;margin:0}
+.player-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:22px}
+.player-kpis div{min-height:68px;background:#eef3ed;border-radius:12px;padding:10px 7px;display:flex;flex-direction:column;justify-content:space-between}
+.player-kpis b{font-size:19px;line-height:1;letter-spacing:-.08em;color:#173c30}
+.player-kpis span{font-size:8px;line-height:1.15;color:#65736b}
+.detail-section{margin-top:22px}
+.detail-heading{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+.detail-heading h3{font-size:14px;letter-spacing:-.04em;margin:0}
+.detail-heading span{font-size:9px;color:#758179}
+.detail-list{border:1px solid #edf0ed;border-radius:14px;overflow:hidden}
+.detail-list article{display:flex;align-items:center;gap:9px;padding:10px 11px;border-top:1px solid #edf0ed}
+.detail-list article:first-child{border-top:0}
+.detail-list article>div{min-width:0;flex:1}
+.detail-list strong{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.detail-list small{display:block;font-size:9px;color:#758179;margin-top:3px}
+.event-summary{color:#36734e!important;font-weight:800}
+.attendance-tag,.match-role{font-size:8px;font-weight:800;white-space:nowrap;padding:5px 6px;border-radius:7px;background:#eef1ed;color:#65736b}
+.attendance-tag.présent{color:#36734e;background:#e4f0e7}.attendance-tag.absent{color:#b85b38;background:#fbe9de}.attendance-tag.blessé{color:#9d3434;background:#f7e0e0}.attendance-tag.excusé{color:#765da8;background:#eee8f6}
+.match-role.starter{color:#173c30;background:#d6f257}
+.detail-empty{font-size:10px;color:#758179;background:#f5f7f4;border-radius:10px;padding:10px;margin:0}
