@@ -1,0 +1,3 @@
+.tactics-toolbar label{display:flex;align-items:center;gap:5px}
+.formation-select{border:0;background:transparent;color:#173c30;font:800 10px Manrope;outline-color:#7da37c;cursor:pointer}
+.confirm-lineup.validated{background:#36734e}
