@@ -13,6 +13,8 @@ export interface Match {
 }
 export interface MatchEvent { id: string; type: 'but' | 'passe' | 'jaune' | 'rouge' | 'entrée' | 'sortie'; playerId: string; minute?: number }
 export interface TeamProfile {
-  name: string; category: string; season: string; onboardingCompleted: boolean
+  name: string; category: string; season: string; onboardingCompleted: boolean; club?: string
 }
+export interface CoachProfile { firstName: string; lastName: string }
+export interface TeamRecord { id: string; data: AppData }
 export interface AppData { team?: TeamProfile; players: Player[]; sessions: Session[]; matches: Match[] }

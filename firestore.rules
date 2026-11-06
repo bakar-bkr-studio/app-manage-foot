@@ -5,19 +5,33 @@ service cloud.firestore {
     match /teams/{teamId} {
       // Chaque compte crée uniquement le document de sa propre équipe.
       allow create: if request.auth != null
+        && request.auth.uid == teamId
         && request.resource.data.ownerId == request.auth.uid;
 
       // Autorise la vérification initiale d'un document inexistant, puis
       // limite la lecture au propriétaire du document créé.
-      allow get: if request.auth != null && (
+      allow get: if request.auth != null && request.auth.uid == teamId && (
         !exists(/databases/$(database)/documents/teams/$(teamId))
         || resource.data.ownerId == request.auth.uid
       );
 
       // Le propriétaire peut modifier les données sans transférer la propriété.
       allow update: if request.auth != null
+        && request.auth.uid == teamId
         && resource.data.ownerId == request.auth.uid
         && request.resource.data.ownerId == resource.data.ownerId;
+    }
+
+    match /users/{userId} {
+      allow read, create, update: if request.auth != null && request.auth.uid == userId;
+
+      match /teams/{teamId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow create: if request.auth != null && request.auth.uid == userId
+          && request.resource.data.ownerId == userId;
+        allow update: if request.auth != null && request.auth.uid == userId
+          && resource.data.ownerId == userId && request.resource.data.ownerId == userId;
+      }
     }
   }
 }

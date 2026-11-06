@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
-import { initializeFirestore } from 'firebase/firestore'
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -18,4 +18,4 @@ const app = firebaseConfigured ? initializeApp(firebaseConfig) : undefined
 export const firebaseAuth = app ? getAuth(app) : undefined
 // Certains champs de l'effectif sont optionnels. Firestore les ignore lorsqu'ils
 // ne sont pas renseignés, plutôt que de refuser toute la sauvegarde.
-export const firestore = app ? initializeFirestore(app, { ignoreUndefinedProperties: true }) : undefined
+export const firestore = app ? initializeFirestore(app, { ignoreUndefinedProperties: true, localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) }) : undefined

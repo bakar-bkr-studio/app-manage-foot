@@ -22,13 +22,15 @@ Le projet Firebase **CoachBoard U18** (`coachboard-u18`) est déjà créé avec 
 
 - Cloud Firestore, région `eur3` (Europe) ;
 - Firebase Authentication avec comptes e-mail / mot de passe ;
-- un document d'équipe privé par coach dans `teams/{uid}` ;
+- un profil privé dans `users/{uid}`, une équipe historique dans `teams/{uid}` et les équipes supplémentaires dans `users/{uid}/teams/{teamId}` ;
 - règles de sécurité reproductibles dans `firestore.rules`.
 
 La configuration locale se trouve dans `.env.local` (non versionné). Pour un autre environnement, copiez `.env.example` et remplissez les valeurs du SDK Web Firebase. Activez le fournisseur **E-mail/Mot de passe** dans Firebase Authentication avant le déploiement et ajoutez le domaine de production dans **Authorized domains**.
 
-À la première inscription, l'application crée une équipe vide puis guide le coach dans sa configuration. Le même compte e-mail permet de retrouver l'équipe sur tous ses appareils. Chaque compte possède pour l’instant sa propre équipe ; le partage avec le staff nécessitera un futur système d’invitations.
+À la première inscription, le coach renseigne son prénom, son nom et sa première équipe. Il peut ensuite créer plusieurs équipes privées, changer d'équipe depuis l'en-tête, et retrouver ses données sur ses appareils. L'équipe historique reste dans son document d'origine ; aucune copie ni suppression n'est nécessaire. Les profils existants sont invités à compléter leur nom à leur prochaine connexion. Le partage avec le staff nécessitera un futur système d’invitations.
 
 Les anciennes équipes créées avec une session anonyme sont conservées : lors de leur prochaine ouverture, l’application demande d’y associer une adresse e-mail et un mot de passe afin de conserver ces données et de les rendre accessibles sur plusieurs appareils.
 
 Pour déployer sur Vercel, renseignez les mêmes variables `VITE_FIREBASE_*` dans les variables d'environnement du projet, puis déployez normalement.
+
+Avant de déployer une version utilisant les profils et plusieurs équipes, publiez d'abord les règles contenues dans `firestore.rules` dans Firebase Console → Firestore Database → Règles. Les règles précédentes ne permettent pas encore l'accès aux profils ni aux équipes supplémentaires ; leur publication est nécessaire au fonctionnement de cette version. Vérifiez ensuite l'inscription, la connexion et les changements d'équipe avec un compte de test.
