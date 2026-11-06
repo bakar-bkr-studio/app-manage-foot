@@ -1,3 +1,9 @@
 .tactics-toolbar label{display:flex;align-items:center;gap:5px}
 .formation-select{border:0;background:transparent;color:#173c30;font:800 10px Manrope;outline-color:#7da37c;cursor:pointer}
 .confirm-lineup.validated{background:#36734e}
+.tactics-actions{display:flex;align-items:center;gap:8px}
+.delete-match{color:#a74735;font-size:10px;font-weight:800;text-decoration:underline}
+.validated-lineup{background:#fff;border:1px solid #e4ebe4;border-radius:18px;padding:17px}
+.validated-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}.validated-head h3{font-size:17px;letter-spacing:-.05em;margin:5px 0}.validated-head p:not(.eyebrow){margin:0;color:#758179;font-size:10px}.validated-head>span{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#d6f257;color:#173c30;font-weight:900}
+.validated-players{display:grid;grid-template-columns:1fr 1fr;gap:6px}.validated-players>div{display:flex;align-items:center;gap:7px;border-radius:9px;background:#f2f5f1;padding:8px;font-size:10px}.validated-players small{width:24px;color:#698075;font:800 8px 'DM Mono'}.validated-players strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.validated-subs{margin:14px 0 0;color:#65736b;font-size:10px;line-height:1.5}

@@ -1,0 +1,23 @@
+.attendance-actions{display:flex;align-items:center;gap:7px}
+.secondary{border:1px solid #dfe5df;border-radius:10px;padding:9px 10px;background:#fff;color:#456454;font-size:10px;font-weight:800}
+.period-filter{display:flex;align-items:center;justify-content:space-between;border:1px solid #e4e9e4;border-radius:12px;background:#fff;padding:9px 11px;margin:0 0 13px}
+.period-filter span{font-size:10px;font-weight:800}
+.period-filter select{max-width:68%;border:0;background:transparent;color:#365443;text-align:right;font-size:10px;font-weight:800;outline-color:#7da37c}
+.attendance-overview{display:flex;justify-content:space-between;gap:15px;border-radius:18px;background:#173c30;color:#fff;padding:18px;margin-top:10px}
+.attendance-overview .eyebrow{color:#b4c3b9}
+.attendance-overview h3{margin:6px 0 5px;font-size:21px;letter-spacing:-.06em}
+.attendance-overview p:not(.eyebrow){max-width:220px;margin:0;color:#ced8d1;font-size:10px;line-height:1.45}
+.attendance-overview>span{align-self:center;text-align:center;color:#d6f257;font-size:24px;font-weight:800;letter-spacing:-.08em}
+.attendance-overview>span small{display:block;color:#d3dbd5;font-size:8px;letter-spacing:0;font-weight:600}
+.attendance-legend{display:flex;gap:11px;overflow:auto;margin:12px 2px 4px;color:#6f7d74;font-size:9px}
+.attendance-legend span{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.attendance-history{margin-top:15px;background:#fff;border:1px solid #edf0ed;border-radius:16px;overflow:hidden}
+.attendance-history .section-title{padding:0 12px;margin:15px 0 7px}
+.attendance-history .section-title>span{font-size:9px}
+.attendance-history article{display:flex;align-items:center;gap:9px;padding:9px 11px;border-top:1px solid #edf0ed}
+.attendance-history .player-info{min-width:0;flex:1}
+.attendance-dots{display:flex;gap:4px}
+.attendance-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#dce2dd}
+.attendance-dot.présent{background:#69aa7c}.attendance-dot.absent{background:#d88857}.attendance-dot.blessé{background:#cf6464}.attendance-dot.excusé{background:#9274be}.attendance-dot.pending{background:#dce2dd}
+.attendance-empty{margin-top:17px;padding:22px 17px;background:#fff;border:1px solid #edf0ed;border-radius:16px;text-align:center}
+.attendance-empty h3{font-size:14px;margin:0 0 6px}.attendance-empty p{font-size:10px;line-height:1.45;color:#758179;margin:0}
