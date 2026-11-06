@@ -1,0 +1,5 @@
+.roster-filters{display:flex;gap:7px;overflow:auto;margin:-4px 0 15px;padding:3px 1px 5px}
+.roster-filters button{flex:0 0 auto;border:1px solid #dfe5df;border-radius:999px;padding:7px 10px;background:#fff;color:#65736b;font-size:10px;font-weight:800}
+.roster-filters button.selected{background:#173c30;border-color:#173c30;color:#fff}
+.roster-empty{margin:10px 0;padding:17px;border-radius:13px;background:#f0f3f0;color:#758179;font-size:11px;text-align:center}
+.deactivate-player{display:block;width:100%;margin-top:12px;padding:10px;border:1px solid #f0cfc8;border-radius:11px;color:#a74735;background:#fff7f5;font-size:11px;font-weight:800}
