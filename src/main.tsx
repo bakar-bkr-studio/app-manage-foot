@@ -10,6 +10,13 @@ import './auth.css'
 
 type View = 'accueil'|'effectif'|'présences'|'matchs'|'tactique'|'stats'
 const positions: Position[] = ['GB','DD','DC','DG','MDC','MC','MOC','AD','AG','BU']
+const teamCategories = ['U6','U7','U8','U9','U10','U11','U12','U13','U14','U15','U16','U17','U18','U19','Seniors','Loisirs']
+const seasonStart = new Date().getMonth() >= 6 ? new Date().getFullYear() : new Date().getFullYear() - 1
+const seasonOptions = Array.from({length: 5}, (_, index) => {
+  const year = seasonStart - 2 + index
+  return `${year}–${String(year + 1).slice(-2)}`
+})
+const currentSeason = `${seasonStart}–${String(seasonStart + 1).slice(-2)}`
 const formSlots = (formation: Match['formation']) => formation === '4-4-2'
   ? ['GB','DD','DC1','DC2','DG','MD1','MD2','AD','AG','BU1','BU2']
   : ['GB','DD','DC1','DC2','DG','MDC1','MDC2','AD','MOC','AG','BU']
@@ -141,9 +148,9 @@ function Onboarding({email,onComplete}:{email:string;onComplete:(team:TeamProfil
   const [step,setStep] = useState<1|2>(1)
   const [name,setName] = useState('')
   const [category,setCategory] = useState('U18')
-  const [season,setSeason] = useState('2026–27')
+  const [season,setSeason] = useState(currentSeason)
   if (step === 1) return <main className="auth-shell"><section className="auth-card onboarding-card"><div className="brand-mark">CB</div><p className="eyebrow">ÉTAPE 1 SUR 2</p><h1>Bienvenue dans CoachBoard</h1><p className="auth-intro">Votre compte <b>{email}</b> est sécurisé. Configurons maintenant votre première équipe.</p><button className="save-button" onClick={()=>setStep(2)}>Configurer mon équipe</button></section></main>
-  return <main className="auth-shell"><section className="auth-card onboarding-card"><p className="eyebrow">ÉTAPE 2 SUR 2</p><h1>Votre équipe</h1><p className="auth-intro">Vous pourrez modifier ces informations plus tard.</p><Field label="Nom de l’équipe"><input autoFocus required placeholder="Ex. Olympique Lyonnais U18" value={name} onChange={e=>setName(e.target.value)}/></Field><div className="form-grid"><Field label="Catégorie"><input value={category} onChange={e=>setCategory(e.target.value)}/></Field><Field label="Saison"><input value={season} onChange={e=>setSeason(e.target.value)}/></Field></div><button disabled={!name.trim()} className="save-button" onClick={()=>onComplete({name:name.trim(),category:category.trim() || 'U18',season:season.trim() || '2026–27',onboardingCompleted:true})}>Accéder à mon équipe</button><button className="auth-link" onClick={()=>setStep(1)}>Retour</button></section></main>
+  return <main className="auth-shell"><section className="auth-card onboarding-card"><p className="eyebrow">ÉTAPE 2 SUR 2</p><h1>Votre équipe</h1><p className="auth-intro">Vous pourrez modifier ces informations plus tard.</p><Field label="Nom de l’équipe"><input autoFocus required placeholder="Ex. Olympique Lyonnais U18" value={name} onChange={e=>setName(e.target.value)}/></Field><div className="form-grid"><Field label="Catégorie"><select value={category} onChange={e=>setCategory(e.target.value)}>{teamCategories.map(option=><option key={option} value={option}>{option}</option>)}</select></Field><Field label="Saison"><select value={season} onChange={e=>setSeason(e.target.value)}>{seasonOptions.map(option=><option key={option} value={option}>{option}</option>)}</select></Field></div><button disabled={!name.trim()} className="save-button" onClick={()=>onComplete({name:name.trim(),category,season,onboardingCompleted:true})}>Accéder à mon équipe</button><button className="auth-link" onClick={()=>setStep(1)}>Retour</button></section></main>
 }
 
 function authErrorMessage(reason: unknown) {
