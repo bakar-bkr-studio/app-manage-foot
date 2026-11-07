@@ -9,7 +9,7 @@ export interface Player {
 export interface Session { id: string; title: string; date: string; time: string; attendance: Record<string, Attendance> }
 export interface Match {
   id: string; opponent: string; date: string; time: string; venue: string; home: boolean; calledUp: string[]; formation: '4-4-2' | '4-2-3-1' | '3-5-2' | '3-4-3'; lineup: Record<string, string>; substitutes: string[]
-  scoreHome?: number; scoreAway?: number; summary?: string; events: MatchEvent[]; completed?: boolean; lineupValidated?: boolean
+  scoreHome?: number; scoreAway?: number; summary?: string; events: MatchEvent[]; completed?: boolean; lineupValidated?: boolean; championshipFixtureId?: string
 }
 export interface MatchEvent { id: string; type: 'but' | 'passe' | 'jaune' | 'rouge' | 'entrée' | 'sortie'; playerId: string; minute?: number }
 export interface TeamProfile {
@@ -17,4 +17,9 @@ export interface TeamProfile {
 }
 export interface CoachProfile { firstName: string; lastName: string }
 export interface TeamRecord { id: string; data: AppData }
-export interface AppData { team?: TeamProfile; players: Player[]; sessions: Session[]; matches: Match[] }
+export interface ChampionshipTeam { id: string; name: string; own?: boolean }
+export interface ChampionshipFixture { id: string; homeId: string; awayId: string; date?: string; homeScore?: number; awayScore?: number; matchId?: string }
+export interface ChampionshipRound { id: string; name: string; date: string; fixtures: ChampionshipFixture[] }
+export type ChampionshipTieBreak = 'goalDifference' | 'goalsScored' | 'pointsOnly'
+export interface Championship { id: string; name: string; season: string; winPoints: number; drawPoints: number; lossPoints: number; tieBreak?: ChampionshipTieBreak; teams: ChampionshipTeam[]; rounds: ChampionshipRound[] }
+export interface AppData { team?: TeamProfile; players: Player[]; sessions: Session[]; matches: Match[]; championships?: Championship[] }

@@ -16,6 +16,18 @@ npm run build
 npm run preview
 ```
 
+Pour vérifier le calcul du classement et la synchronisation des résultats :
+
+```bash
+npm test
+```
+
+## Championnat
+
+Chaque équipe peut gérer ses championnats, les équipes participantes, les journées et leurs scores. Les rencontres de l'équipe du coach peuvent être rattachées à un match existant ou créer un match à compléter. Les résultats sont synchronisés entre la journée et le bilan, sans effacer les événements joueurs. La suppression d'une rencontre ou d'une journée conserve les matchs liés dans l'onglet Matchs.
+
+Les points et certains critères de départage sont configurables. Le classement est calculé depuis les scores saisis : les pénalités, forfaits et confrontations directes ne sont pas calculés automatiquement et peuvent expliquer un écart avec un classement officiel.
+
 ## Firebase configuré
 
 Le projet Firebase **CoachBoard U18** (`coachboard-u18`) est déjà créé avec :

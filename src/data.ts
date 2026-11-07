@@ -45,7 +45,7 @@ export const cloudRepository = {
     let legacy:TeamRecord|undefined, additional:TeamRecord[]=[]
     let legacyReady=false, additionalReady=false
     const emit=()=>{if(legacyReady&&additionalReady)onData([...(legacy?[legacy]:[]),...additional])}
-    const fromData=(id:string, value:Record<string,unknown>):TeamRecord=>({id,data:{team:value.team as TeamProfile|undefined,players:Array.isArray(value.players)?value.players:[],sessions:Array.isArray(value.sessions)?value.sessions:[],matches:Array.isArray(value.matches)?value.matches:[]} as AppData})
+    const fromData=(id:string, value:Record<string,unknown>):TeamRecord=>({id,data:{team:value.team as TeamProfile|undefined,players:Array.isArray(value.players)?value.players:[],sessions:Array.isArray(value.sessions)?value.sessions:[],matches:Array.isArray(value.matches)?value.matches:[],championships:Array.isArray(value.championships)?value.championships:[]} as AppData})
     const stopLegacy=onSnapshot(doc(firestore,'teams',userId),{includeMetadataChanges:true},snapshot=>{
       if(!snapshot.exists()&&snapshot.metadata.fromCache)return
       legacyReady=true
