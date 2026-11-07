@@ -6,7 +6,7 @@ import { transformWithOxc } from 'vite'
 // Run the same TypeScript logic used by the app without a separate test dependency.
 const source=await readFile(new URL('../src/championship.ts',import.meta.url),'utf8')
 const output=await transformWithOxc(source,'championship.ts',{lang:'ts'})
-const {calculateStandings,applyFixtureResult,applyMatchResult,addMatchWithChampionship,attachExistingMatch}=await import(`data:text/javascript;base64,${Buffer.from(output.code).toString('base64')}`)
+const {calculateStandings,applyFixtureResult,applyMatchResult,addMatchWithChampionship,attachExistingMatch,orderedRounds,standingsThroughRound,statsThroughRound}=await import(`data:text/javascript;base64,${Buffer.from(output.code).toString('base64')}`)
 
 const setup=()=>{
  const championship={id:'league',name:'Groupe A',season:'2026–27',winPoints:3,drawPoints:1,lossPoints:0,teams:[{id:'own',name:'Nous',own:true},{id:'a',name:'Alpha'},{id:'b',name:'Beta'},{id:'c',name:'Charlie'}],rounds:[{id:'day',name:'Journée 1',date:'2026-09-01',fixtures:[{id:'fixture',homeId:'a',awayId:'own',matchId:'match'},{id:'other',homeId:'b',awayId:'c'}]}]}
@@ -135,4 +135,37 @@ test('un brouillon vide ne peut être remplacé qu’après confirmation et sans
  assert.equal(linked.matches.length,1)
  assert.deepEqual(linked.matches[0].events,original.matches[0].events)
  assert.throws(()=>attachExistingMatch({...original,matches:original.matches.map(match=>match.id==='draft'?{...match,venue:'Stade'}:match)},'league','day','match','unused',true),/contient des informations/)
+})
+
+
+test('le classement par journée suit les numéros et ignore les scores des journées suivantes',()=>{
+ const data=setup()
+ const championship=data.championships[0]
+ championship.rounds=[
+  {id:'ten',name:'Journée 10',date:'2026-08-01',fixtures:[{id:'t',homeId:'own',awayId:'a',homeScore:0,awayScore:1}]},
+  {id:'two',name:'Journée 2',date:'2026-12-01',fixtures:[{id:'s',homeId:'own',awayId:'a',homeScore:1,awayScore:1}]},
+  {id:'one',name:'Journée 1',date:'2026-09-01',fixtures:[{id:'f',homeId:'own',awayId:'a',homeScore:2,awayScore:0}]},
+  {id:'legacy',name:'Phase finale',date:'2026-07-01',fixtures:[]},
+ ]
+ assert.deepEqual(orderedRounds(championship.rounds).map(round=>round.id),['one','two','ten','legacy'])
+ assert.equal(standingsThroughRound(championship,'one').find(row=>row.team.id==='own').points,3)
+ assert.equal(standingsThroughRound(championship,'two').find(row=>row.team.id==='own').points,4)
+ assert.equal(standingsThroughRound(championship,'ten').find(row=>row.team.id==='own').played,3)
+ assert.equal(championship.rounds[0].id,'ten')
+})
+
+
+test('les statistiques historiques filtrent les journées liées et les autres données par date',()=>{
+ const data=setup(),league=data.championships[0]
+ league.rounds[0].date='2026-09-10'
+ league.rounds[0].fixtures[0].date='2026-12-01'
+ league.rounds.push({id:'day2',name:'Journée 2',date:'2026-09-20',fixtures:[{id:'f2',homeId:'a',awayId:'own',matchId:'m2'}]})
+ data.matches[0].date='2026-12-01'
+ data.matches.push({...data.matches[0],id:'m2',date:'2026-09-01',championshipFixtureId:'f2'},{...data.matches[0],id:'friendly',date:'2026-09-05',championshipFixtureId:undefined},{...data.matches[0],id:'late',date:'2026-09-15',championshipFixtureId:undefined})
+ data.sessions=[{id:'s1',date:'2026-09-10',time:'',title:'Séance',attendance:{}},{id:'s2',date:'2026-09-11',time:'',title:'Séance',attendance:{}}]
+ const filtered=statsThroughRound(data,league,'day')
+ assert.deepEqual(filtered.matches.map(match=>match.id),['match','friendly'])
+ assert.deepEqual(filtered.sessions.map(session=>session.id),['s1'])
+ assert.equal(data.matches.length,4)
+ assert.equal(statsThroughRound(data,league,'inconnue'),data)
 })

@@ -1,4 +1,4 @@
-import type { AppData, Championship, ChampionshipFixture, ChampionshipTeam, Match } from './types'
+import type { AppData, Championship, ChampionshipFixture, ChampionshipRound, ChampionshipTeam, Match } from './types'
 
 export interface MatchChampionshipLink { championshipId: string; roundId: string; opponentId: string; fixtureId: string }
 
@@ -59,6 +59,46 @@ export function attachExistingMatch(data:AppData,championshipId:string,roundId:s
   const {date:_date,...previous}=existing||{id,homeId,awayId}
   const fixture:ChampionshipFixture={...previous,...(!fixtureHasScore?fromMatch:{}),matchId:match.id,...(match.date!==round.date?{date:match.date}:{})}
   return {...data,matches:data.matches.filter(item=>item.id!==draft?.id).map(item=>item.id===match.id?linked:item),championships:(data.championships||[]).map(item=>item.id!==championshipId?item:{...item,rounds:item.rounds.map(day=>day.id!==roundId?day:{...day,fixtures:existing?day.fixtures.map(value=>value.id===id?fixture:value):[...day.fixtures,fixture]})})}
+}
+
+/** Les anciennes journées portant un nom personnalisé restent accessibles, après les journées numérotées. */
+export function roundNumber(name:string):number|undefined {
+  const match=name.trim().match(/^journée\s+(\d+)$/i)
+  const number=match?Number(match[1]):0
+  return Number.isSafeInteger(number)&&number>0?number:undefined
+}
+
+export function orderedRounds(rounds:ChampionshipRound[]):ChampionshipRound[] {
+  return [...rounds].sort((a,b)=>{
+    const first=roundNumber(a.name),second=roundNumber(b.name)
+    if(first!==undefined&&second!==undefined)return first-second||a.date.localeCompare(b.date)
+    if(first!==undefined)return -1
+    if(second!==undefined)return 1
+    return a.date.localeCompare(b.date)||a.name.localeCompare(b.name,'fr')
+  })
+}
+
+export function standingsThroughRound(championship:Championship,roundId?:string):Standing[] {
+  const rounds=orderedRounds(championship.rounds)
+  const index=roundId?rounds.findIndex(round=>round.id===roundId):-1
+  return calculateStandings({...championship,rounds:index<0?rounds:rounds.slice(0,index+1)})
+}
+
+/** Filtre les statistiques à une journée sans modifier les données enregistrées. */
+export function statsThroughRound(data:AppData,championship:Championship,roundId:string):AppData {
+  const rounds=orderedRounds(championship.rounds)
+  const index=rounds.findIndex(round=>round.id===roundId)
+  if(index<0)return data
+  const round=rounds[index]
+  const leagueFixtures=new Set(rounds.flatMap(day=>day.fixtures.map(fixture=>fixture.id)))
+  const includedFixtures=new Set(rounds.slice(0,index+1).flatMap(day=>day.fixtures.map(fixture=>fixture.id)))
+  const leagueMatches=new Set(rounds.flatMap(day=>day.fixtures.map(fixture=>fixture.matchId).filter((id):id is string=>Boolean(id))))
+  const includedMatches=new Set(rounds.slice(0,index+1).flatMap(day=>day.fixtures.map(fixture=>fixture.matchId).filter((id):id is string=>Boolean(id))))
+  return {...data,sessions:data.sessions.filter(session=>session.date<=round.date),matches:data.matches.filter(match=>{
+    if(match.championshipFixtureId&&leagueFixtures.has(match.championshipFixtureId))return includedFixtures.has(match.championshipFixtureId)
+    if(leagueMatches.has(match.id))return includedMatches.has(match.id)
+    return match.date<=round.date
+  })}
 }
 
 export interface Standing { team: ChampionshipTeam; played: number; won: number; drawn: number; lost: number; goalsFor: number; goalsAgainst: number; points: number; rank: number }

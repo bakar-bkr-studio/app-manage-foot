@@ -6,7 +6,7 @@ import './account.css'
 export const teamCategories = ['U6','U7','U8','U9','U10','U11','U12','U13','U14','U15','U16','U17','U18','U19','Seniors','Loisirs']
 const startYear = new Date().getMonth() >= 6 ? new Date().getFullYear() : new Date().getFullYear() - 1
 export const currentSeason = `${startYear}–${String(startYear+1).slice(-2)}`
-const seasons = Array.from({length:5},(_,index)=>{const year=startYear-2+index;return `${year}–${String(year+1).slice(-2)}`})
+export const seasons = Array.from({length:5},(_,index)=>{const year=startYear-2+index;return `${year}–${String(year+1).slice(-2)}`})
 
 function Field({label,children}:{label:string;children:React.ReactNode}) {return <label className="field"><span>{label}</span>{children}</label>}
 
