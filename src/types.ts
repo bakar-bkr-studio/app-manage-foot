@@ -6,7 +6,10 @@ export interface Player {
   id: string; firstName: string; lastName: string; number?: number; mainPosition: Position; secondaryPosition?: Position
   availability: Availability; active: boolean; note?: string
 }
-export interface Session { id: string; title: string; date: string; time: string; attendance: Record<string, Attendance> }
+export interface TrainingGroup { id: string; name: string; color: 'blue'|'red'|'orange'|'green'|'purple'; playerIds: string[] }
+export interface TrainingBlock { id: string; name: string; minutes: number; notes: string; groupMode: 'session'|'custom'|'none'; groups: TrainingGroup[] }
+export interface TrainingPreparation { theme: string; objective: string; blocks: TrainingBlock[]; groups: TrainingGroup[] }
+export interface Session { id: string; title: string; date: string; time: string; attendance: Record<string, Attendance>; preparation?: TrainingPreparation; incidents?: Record<string,string> }
 export type MatchType = 'championnat' | 'coupe' | 'amical'
 export interface Match {
   id: string; opponent: string; date: string; time: string; venue: string; home: boolean; calledUp: string[]; formation: '4-4-2' | '4-2-3-1' | '3-5-2' | '3-4-3'; lineup: Record<string, string>; substitutes: string[]
