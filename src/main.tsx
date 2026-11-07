@@ -6,6 +6,7 @@ import { dataMode, firebaseAuth, firebaseConfigured } from './firebase'
 import { MotionPage } from './motion'
 import { AccountPage, ProfileForm, TeamForm } from './account'
 import { ChampionshipPage } from './ChampionshipPage'
+import { Dashboard } from './Dashboard'
 import { addMatchWithChampionship, applyMatchResult, orderedRounds, statsThroughRound, type MatchChampionshipLink } from './championship'
 import type { AppData, Attendance, Availability, CoachProfile, Match, MatchEvent, MatchType, Player, Position, Session, TeamProfile, TeamRecord } from './types'
 import './styles.css'
@@ -122,7 +123,7 @@ function CoachApp({user,profile,teams,active,selectTeam,saveProfile,saveTeamData
     <header className="topbar"><div className="brand-mark">CB</div><div className="team-switcher"><p className="eyebrow">{data.team?.category || 'U18'} · SAISON {data.team?.season || '2026–27'}</p>{teams.length>1?<select aria-label="Changer d’équipe" value={active.id} onChange={event=>selectTeam(event.target.value)}>{teams.map(team=><option key={team.id} value={team.id}>{team.data.team?.name}</option>)}</select>:<h1>{data.team?.name || 'CoachBoard'}</h1>}</div><button className="avatar" title="Mon profil" aria-label="Mon profil" onClick={()=>setView('profil')}>{profile.firstName[0]?.toUpperCase()}{profile.lastName[0]?.toUpperCase()}</button></header>
     <section className="content">
       <MotionPage key={view}>
-      {view==='accueil' && <Dashboard data={data} firstName={profile.firstName} go={setView} setMatch={setActiveMatch} />}
+      {view==='accueil' && <Dashboard data={data} firstName={profile.firstName} go={view=>{if(view==='présences')setActiveSession('');setView(view)}} newSession={()=>{setActiveSession('');setView('présences');setSheet('session')}} openSession={session=>{setActiveSession(session.id);setView('présences')}} openMatch={match=>{setActiveMatch(match.id);setView('tactique')}} openReport={match=>{setActiveMatch(match.id);setView('tactique');setSheet('report')}} openPlayer={player=>{setStatsPlayer(player);setStatsPlayerData(data);setSheet('player-stats')}} />}
       {view==='effectif' && <Roster category={data.team?.category || 'U18'} players={activePlayers} onAdd={()=>{setEditPlayer(undefined);setSheet('player')}} onEdit={p=>{setEditPlayer(p);setSheet('player')}} />}
       {view==='présences' && <AttendanceView data={data} selected={activeSession} setSelected={setActiveSession} newSession={()=>setSheet('session')} update={update} />}
       {view==='matchs' && <MatchesView data={data} activeMatch={activeMatch} setActiveMatch={id=>{setActiveMatch(id);setView('tactique')}} newMatch={()=>{setMatchTemplate(undefined);setSheet('match')}} duplicateMatch={match=>{setMatchTemplate(match);setSheet('match')}} />}
@@ -218,22 +219,6 @@ function authErrorMessage(reason: unknown) {
   return 'Une erreur est survenue. Réessayez dans un instant.'
 }
 
-function Dashboard({data,firstName,go,setMatch}:{data:AppData;firstName:string;go:(v:View)=>void;setMatch:(id:string)=>void}) {
- const nextSession=[...data.sessions].sort((a,b)=>`${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`))[0]; const nextMatch=[...data.matches].filter(m=>!m.completed).sort((a,b)=>`${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`))[0]
- const unavailable=data.players.filter(p=>p.active&&p.availability!=='disponible'); const attendance=nextSession?Object.values(nextSession.attendance).filter(a=>a==='présent').length:0
- if (data.players.length === 0) return <><section className="welcome"><div><p className="eyebrow">BONJOUR, {firstName.toLocaleUpperCase('fr-FR')}</p><h2>Commençons par le groupe.</h2><p>Ajoutez vos joueurs pour préparer les séances, convocations et compositions.</p></div><div className="ball">⚽</div></section><section className="first-steps"><p className="eyebrow">PREMIÈRE ÉTAPE</p><h3>Ajoutez votre premier joueur</h3><p>Renseignez son nom, numéro et poste. Vous pourrez compléter l’effectif ensuite.</p><button className="primary" onClick={()=>go('effectif')}>Ajouter un joueur</button></section></>
- return <><section className="welcome"><div><p className="eyebrow">BONJOUR, {firstName.toLocaleUpperCase('fr-FR')}</p><h2>Prêt pour la séance ?</h2><p>Gardez le groupe concentré, une décision à la fois.</p></div><div className="ball">⚽</div></section>
- <div className="section-title"><h3>À venir</h3><button onClick={()=>go('matchs')}>Voir tout</button></div>
- <div className="schedule-grid">
-  <article className="next-card session"><span className="card-icon">↗</span><p>PROCHAINE SÉANCE</p><h3>{nextSession?.title||'Aucune séance'}</h3><strong>{nextSession?`${formatDate(nextSession.date)} · ${nextSession.time}`:'Créez votre première séance'}</strong><div className="card-footer"><span>{attendance}/{data.players.filter(p=>p.active).length} réponses</span><button onClick={()=>go('présences')}>Présences →</button></div></article>
-  <article className="next-card match"><span className="card-icon">◉</span><p>PROCHAIN MATCH</p><h3>{nextMatch?.home?'vs ':'@ '}{nextMatch?.opponent||'À planifier'}</h3><strong>{nextMatch?`${formatDate(nextMatch.date)} · ${nextMatch.time||'Heure à définir'}`:'Ajoutez une rencontre'}</strong><div className="card-footer"><span>{nextMatch?.venue||'Lieu à définir'}</span><button onClick={()=>{if(nextMatch){setMatch(nextMatch.id);go('tactique')}else go('matchs')}}>Composer →</button></div></article>
- </div>
- <div className="section-title"><h3>Groupe du jour</h3><button onClick={()=>go('effectif')}>Effectif</button></div>
- <div className="metric-row"><Metric value={data.players.filter(p=>p.active).length} label="joueurs actifs" tone="dark"/><Metric value={unavailable.length} label="indisponibles" tone={unavailable.length?'orange':'green'}/><Metric value={`${Math.round(attendance/Math.max(1,data.players.length)*100)}%`} label="présents séance" tone="lime"/></div>
- {unavailable.length>0&&<section className="availability"><div className="section-title"><h3>À surveiller</h3><span className="count">{unavailable.length}</span></div>{unavailable.map(p=><div className="person-row" key={p.id}><span className="mini-avatar">{initials(p)}</span><div><strong>{fullName(p)}</strong><small>{p.mainPosition} · {playerNumber(p)}</small></div><span className={`status ${p.availability}`}>{p.availability}</span></div>)}</section>}
- </>
-}
-function Metric({value,label,tone}:{value:string|number;label:string;tone:string}) { return <div className={`metric ${tone}`}><strong>{value}</strong><span>{label}</span></div> }
 function Roster({category,players,onAdd,onEdit}:{category:string;players:Player[];onAdd:()=>void;onEdit:(p:Player)=>void}) {
  const [query,setQuery]=useState('')
  const [filter,setFilter]=useState<RosterFilter>('tous')
