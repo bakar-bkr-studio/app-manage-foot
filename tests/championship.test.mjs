@@ -6,7 +6,7 @@ import { transformWithOxc } from 'vite'
 // Run the same TypeScript logic used by the app without a separate test dependency.
 const source=await readFile(new URL('../src/championship.ts',import.meta.url),'utf8')
 const output=await transformWithOxc(source,'championship.ts',{lang:'ts'})
-const {calculateStandings,applyFixtureResult,applyMatchResult}=await import(`data:text/javascript;base64,${Buffer.from(output.code).toString('base64')}`)
+const {calculateStandings,applyFixtureResult,applyMatchResult,addMatchWithChampionship,attachExistingMatch}=await import(`data:text/javascript;base64,${Buffer.from(output.code).toString('base64')}`)
 
 const setup=()=>{
  const championship={id:'league',name:'Groupe A',season:'2026–27',winPoints:3,drawPoints:1,lossPoints:0,teams:[{id:'own',name:'Nous',own:true},{id:'a',name:'Alpha'},{id:'b',name:'Beta'},{id:'c',name:'Charlie'}],rounds:[{id:'day',name:'Journée 1',date:'2026-09-01',fixtures:[{id:'fixture',homeId:'a',awayId:'own',matchId:'match'},{id:'other',homeId:'b',awayId:'c'}]}]}
@@ -82,4 +82,57 @@ test('le critère de départage choisi change l’ordre et conserve les égalit�
  assert.equal(calculateStandings({...championship,tieBreak:'goalsScored'})[0].team.id,'a')
  const pointsOnly=calculateStandings({...championship,tieBreak:'pointsOnly'})
  assert.equal(pointsOnly.find(row=>row.team.id==='a').rank,pointsOnly.find(row=>row.team.id==='b').rank)
+})
+
+test('un nouveau match de championnat crée simultanément sa rencontre et évite les doublons',()=>{
+ const original=setup()
+ original.championships[0].rounds[0].fixtures=[]
+ const match={...original.matches[0],id:'new',matchType:'championnat'}
+ delete match.championshipFixtureId
+ const link={championshipId:'league',roundId:'day',opponentId:'a',fixtureId:'new-fixture'}
+ const data=addMatchWithChampionship(original,match,link)
+ const fixture=data.championships[0].rounds[0].fixtures[0]
+ assert.deepEqual([fixture.homeId,fixture.awayId,fixture.matchId],['a','own','new'])
+ assert.equal(data.matches[0].championshipFixtureId,'new-fixture')
+ assert.equal(original.championships[0].rounds[0].fixtures.length,0)
+ assert.throws(()=>addMatchWithChampionship(data,{...match,id:'duplicate'},link),/déjà lié/)
+ assert.throws(()=>addMatchWithChampionship(original,{...match,matchType:'amical'},link),/Seul un match de championnat/)
+})
+
+test('une journée déjà jouée sans match lié transmet son score à la création',()=>{
+ const original=setup()
+ original.championships[0].rounds[0].fixtures=[{id:'existing-fixture',homeId:'a',awayId:'own',homeScore:1,awayScore:2}]
+ const match={...original.matches[0],id:'new',matchType:'championnat'}
+ delete match.championshipFixtureId
+ const data=addMatchWithChampionship(original,match,{championshipId:'league',roundId:'day',opponentId:'a',fixtureId:'unused'})
+ assert.deepEqual([data.matches[0].scoreHome,data.matches[0].scoreAway,data.matches[0].completed],[2,1,true])
+ assert.equal(data.championships[0].rounds[0].fixtures[0].matchId,'new')
+ assert.equal(data.championships[0].rounds[0].fixtures.length,1)
+})
+
+test('rattacher un ancien match conserve son bilan et met à jour le classement',()=>{
+ const original=setup()
+ original.championships[0].rounds[0].fixtures=[]
+ original.matches[0]={...original.matches[0],opponent:'Alpha',completed:true,scoreHome:2,scoreAway:1}
+ delete original.matches[0].championshipFixtureId
+ const data=attachExistingMatch(original,'league','day','match','fixture')
+ assert.equal(data.matches.length,1)
+ assert.equal(data.matches[0].matchType,'championnat')
+ assert.deepEqual(data.matches[0].events,original.matches[0].events)
+ assert.deepEqual([data.championships[0].rounds[0].fixtures[0].homeScore,data.championships[0].rounds[0].fixtures[0].awayScore],[1,2])
+ assert.equal(calculateStandings(data.championships[0]).find(row=>row.team.id==='own').points,3)
+ assert.throws(()=>attachExistingMatch({...original,matches:[{...original.matches[0],matchType:'amical'}]},'league','day','match','fixture'),/amical/)
+})
+
+test('un brouillon vide ne peut être remplacé qu’après confirmation et sans effacer un bilan',()=>{
+ const original=setup()
+ original.matches[0]={...original.matches[0],completed:true,scoreHome:2,scoreAway:1}
+ delete original.matches[0].championshipFixtureId
+ original.matches.push({id:'draft',opponent:'Alpha',date:'2026-09-01',time:'',venue:'',home:false,calledUp:[],formation:'4-4-2',lineup:{},substitutes:[],events:[],championshipFixtureId:'fixture'})
+ original.championships[0].rounds[0].fixtures[0]={id:'fixture',homeId:'a',awayId:'own',matchId:'draft'}
+ assert.throws(()=>attachExistingMatch(original,'league','day','match','unused'),/Confirmez/)
+ const linked=attachExistingMatch(original,'league','day','match','unused',true)
+ assert.equal(linked.matches.length,1)
+ assert.deepEqual(linked.matches[0].events,original.matches[0].events)
+ assert.throws(()=>attachExistingMatch({...original,matches:original.matches.map(match=>match.id==='draft'?{...match,venue:'Stade'}:match)},'league','day','match','unused',true),/contient des informations/)
 })

@@ -7,9 +7,10 @@ export interface Player {
   availability: Availability; active: boolean; note?: string
 }
 export interface Session { id: string; title: string; date: string; time: string; attendance: Record<string, Attendance> }
+export type MatchType = 'championnat' | 'coupe' | 'amical'
 export interface Match {
   id: string; opponent: string; date: string; time: string; venue: string; home: boolean; calledUp: string[]; formation: '4-4-2' | '4-2-3-1' | '3-5-2' | '3-4-3'; lineup: Record<string, string>; substitutes: string[]
-  scoreHome?: number; scoreAway?: number; summary?: string; events: MatchEvent[]; completed?: boolean; lineupValidated?: boolean; championshipFixtureId?: string
+  scoreHome?: number; scoreAway?: number; summary?: string; events: MatchEvent[]; completed?: boolean; lineupValidated?: boolean; championshipFixtureId?: string; matchType?: MatchType
 }
 export interface MatchEvent { id: string; type: 'but' | 'passe' | 'jaune' | 'rouge' | 'entrée' | 'sortie'; playerId: string; minute?: number }
 export interface TeamProfile {
