@@ -153,7 +153,7 @@ function CoachApp({user,profile,teams,active,selectTeam,saveProfile,saveTeamData
   </main>
 }
 
-function LoadingScreen() { return <main className="auth-shell"><div className="auth-card"><div className="brand-mark">CB</div><p className="eyebrow">COACHBOARD</p><h1>Connexion sécurisée…</h1></div></main> }
+function LoadingScreen() { return <main className="auth-shell"><div className="auth-card loading-card" role="status" aria-live="polite"><div className="loading-scene" aria-hidden="true"><span className="loading-shadow"/><span className="loading-ball"/></div><p className="eyebrow">COACHBOARD</p><h1>Connexion sécurisée<span className="loading-dots"><i>·</i><i>·</i><i>·</i></span></h1><p className="loading-copy">Préparation de votre espace équipe</p></div></main> }
 
 function AuthScreen() {
   const [mode,setMode] = useState<'login'|'register'>('login')
